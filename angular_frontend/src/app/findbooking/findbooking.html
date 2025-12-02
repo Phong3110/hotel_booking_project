@@ -1,0 +1,83 @@
+<div class="max-w-3xl mx-auto p-6">
+
+  <!-- Success and Error Messages -->
+  @if (message) {
+    <div class="mb-4 p-3 rounded-lg bg-green-100 text-green-700 border border-green-300">
+      {{ message }}
+    </div>
+  }
+
+  <!-- Error Message -->
+  @if (error) {
+    <div class="mb-4 p-3 rounded-lg bg-red-100 text-red-700 border border-red-300">
+      {{ error }}
+    </div>
+  }
+
+  <h2 class="text-3xl font-semibold mb-6 text-gray-800">Find Booking</h2>
+
+  <!-- Search Section -->
+  <div class="bg-white p-6 shadow-md rounded-xl mb-6">
+    <div class="space-y-3">
+      <input
+        type="text"
+        placeholder="Enter your booking confirmation code"
+        [(ngModel)]="confirmationCode"
+        required
+        class="w-full p-2 border border-gray-300 rounded-lg
+               focus:ring-2 focus:ring-blue-300 focus:outline-none"
+      />
+      <button 
+        (click)="handleSearch()"
+        class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium
+               hover:bg-blue-700 transition shadow"
+      >
+        Find
+      </button>
+    </div>
+  </div>
+
+  <!-- Booking Details -->
+  @if (bookingDetails) {
+    <div class="bg-white p-6 shadow-md rounded-xl mb-6 space-y-3">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">Booking Details</h3>
+      <p class="text-gray-700"><strong class="font-medium">Booking Code:</strong> {{ bookingDetails.bookingReference }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Check-in Date:</strong> {{ bookingDetails.checkInDate }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Check-out Date:</strong> {{ bookingDetails.checkOutDate }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Amount:</strong> {{ bookingDetails.totalPrice }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Payment Status:</strong> {{ bookingDetails.paymentStatus }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Booking Status:</strong> {{ bookingDetails.bookingStatus }}</p>
+    </div>
+
+    <div class="bg-white p-6 shadow-md rounded-xl mb-6 space-y-3">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">Customer Details</h3>
+      <p class="text-gray-700"><strong class="font-medium">First Name:</strong> {{ bookingDetails.user.firstName }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Last Name:</strong> {{ bookingDetails.user.lastName }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Email:</strong> {{ bookingDetails.user.email }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Phone Number:</strong> {{ bookingDetails.user.phoneNumber }}</p>
+    </div>
+
+    <div class="bg-white p-6 shadow-md rounded-xl mb-6 space-y-3">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">Room Details</h3>
+      <p class="text-gray-700"><strong class="font-medium">Room Number:</strong> {{ bookingDetails.room.roomNumber }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Room Type:</strong> {{ bookingDetails.room.type }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Room Capacity:</strong> {{ bookingDetails.room.capacity }}</p>
+      <img 
+        [src]="'http://localhost:8080' + bookingDetails.room.imageUrl" 
+        alt="Room Image"
+        class="w-full max-h-64 object-cover rounded-lg shadow mt-3"
+      />
+    </div>
+
+    <div class="bg-white p-6 shadow-md rounded-xl space-y-3">
+      <!-- Cancel Booking Button -->
+      <button 
+        (click)="handleCancelBooking()"
+        class="w-full bg-red-600 text-white py-2.5 rounded-lg font-medium
+               hover:bg-red-700 transition shadow"
+      >
+        Cancel Booking
+      </button>
+    </div>
+  }
+</div>

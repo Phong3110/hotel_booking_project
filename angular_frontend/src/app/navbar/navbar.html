@@ -1,0 +1,100 @@
+<nav class="bg-white shadow-md">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="flex justify-between items-center h-16">
+      <!-- Brand -->
+      <div class="brand">
+        <a href="/home" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition">
+          Hotel Booking
+        </a>
+      </div>
+
+      <!-- Navigation Links -->
+      <ul class="flex items-center space-x-6">
+        <li>
+          <a 
+            routerLink="/home" 
+            routerLinkActive="active"
+            class="text-gray-700 hover:text-blue-600 font-medium transition"
+          >
+            Home
+          </a>
+        </li>
+        <li>
+          <a 
+            routerLink="/rooms" 
+            routerLinkActive="active"
+            class="text-gray-700 hover:text-blue-600 font-medium transition"
+          >
+            Rooms
+          </a>
+        </li>
+        <li>
+          <a 
+            routerLink="/find-booking" 
+            routerLinkActive="active"
+            class="text-gray-700 hover:text-blue-600 font-medium transition"
+          >
+            Find Booking
+          </a>
+        </li>
+
+        @if (isCustomer) {
+          <li>
+            <a 
+              routerLink="/profile" 
+              routerLinkActive="active"
+              class="text-gray-700 hover:text-blue-600 font-medium transition"
+            >
+              Profile
+            </a>
+          </li>
+        }
+
+        @if (isAdmin) {
+          <li>
+            <a 
+              routerLink="/admin" 
+              routerLinkActive="active"
+              class="text-gray-700 hover:text-blue-600 font-medium transition"
+            >
+              Admin
+            </a>
+          </li>
+        }
+
+        @if (!isAuthemticated) {
+          <li>
+            <a 
+              routerLink="/login" 
+              routerLinkActive="active"
+              class="text-gray-700 hover:text-blue-600 font-medium transition"
+            >
+              Login
+            </a>
+          </li>
+          <li>
+            <a 
+              routerLink="/register" 
+              routerLinkActive="active"
+              class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium
+                     hover:bg-blue-700 transition"
+            >
+              Register
+            </a>
+          </li>
+        }
+
+        @if (isAuthemticated) {
+          <li>
+            <button 
+              (click)="handleLogout()"
+              class="text-gray-700 hover:text-red-600 font-medium transition cursor-pointer"
+            >
+              Logout
+            </button>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+</nav>

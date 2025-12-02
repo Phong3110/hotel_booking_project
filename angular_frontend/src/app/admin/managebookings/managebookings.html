@@ -1,0 +1,72 @@
+<div class="max-w-3xl mx-auto p-6">
+
+  <!-- Error -->
+  @if (error) {
+    <div class="mb-4 p-3 rounded-lg bg-red-100 text-red-700 border border-red-300">
+      {{ error }}
+    </div>
+  }
+
+  <h2 class="text-3xl font-semibold mb-6 text-gray-800">All Bookings</h2>
+
+  <!-- Search Bar -->
+  <div class="bg-white p-6 shadow-md rounded-xl mb-6">
+    <div class="space-y-1">
+      <label class="font-medium text-gray-700">Filter by Booking Number</label>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (input)="handleSearchChange()"
+        placeholder="Enter booking number"
+        class="w-full p-2 border border-gray-300 rounded-lg
+               focus:ring-2 focus:ring-blue-300 focus:outline-none"
+      />
+    </div>
+  </div>
+
+  <!-- Bookings List -->
+  <div class="space-y-4">
+
+    @for (booking of currentBookings; track $index) {
+      <div class="bg-white p-6 shadow-md rounded-xl space-y-3">
+        <p class="text-gray-700">
+          <strong class="font-medium">Booking Code:</strong> {{ booking.bookingReference }}
+        </p>
+        <p class="text-gray-700">
+          <strong class="font-medium">Check In Date:</strong> {{ booking.checkInDate }}
+        </p>
+        <p class="text-gray-700">
+          <strong class="font-medium">Check Out Date:</strong> {{ booking.checkOutDate }}
+        </p>
+        <p class="text-gray-700">
+          <strong class="font-medium">Total Price:</strong> {{ booking.totalPrice }}
+        </p>
+        <p class="text-gray-700">
+          <strong class="font-medium">Payment Status:</strong> {{ booking.paymentStatus }}
+        </p>
+        <p class="text-gray-700">
+          <strong class="font-medium">Booking Status:</strong> {{ booking.bookingStatus }}
+        </p>
+        <button
+          (click)="manageBooking(booking.bookingReference)"
+          class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium
+                 hover:bg-blue-700 transition shadow mt-3"
+        >
+          Manage Booking
+        </button>
+      </div>
+    }
+
+  </div>
+
+  <!-- Pagination Component -->
+  <div class="mt-6">
+    <app-pagination
+      [roomPerPage]="bookingsPerPage"
+      [totalRooms]="filteredBookings.length"
+      [currentPage]="currentPage"
+      (paginate)="onPageChange($event)"
+    ></app-pagination>
+  </div>
+
+</div>

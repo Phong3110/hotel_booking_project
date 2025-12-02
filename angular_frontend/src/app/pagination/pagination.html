@@ -1,0 +1,18 @@
+<div class="flex justify-center py-6">
+  <ul class="flex items-center space-x-2">
+    @for (number of pageNumbers; track number) {
+      <li>
+        <button
+          (click)="onPageChange(number)"
+          [ngClass]="{
+            'px-4 py-2 rounded-lg font-medium transition': true,
+            'bg-blue-600 text-white shadow': currentPage === number,
+            'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100': currentPage !== number
+          }"
+        >
+          {{ number }}
+        </button>
+      </li>
+    }
+  </ul>
+</div>

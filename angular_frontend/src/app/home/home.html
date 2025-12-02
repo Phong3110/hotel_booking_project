@@ -1,0 +1,80 @@
+<div class="home">
+  <!-- HEADER SECTION -->
+  <header class="relative h-96 overflow-hidden">
+    <img src="./home/aaa.png" alt="Hotel" class="w-full h-full object-cover" />
+    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+    <div class="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-4">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">
+        Welcome to <span class="text-blue-400">Hotel Booking</span>
+      </h1>
+      <h3 class="text-xl md:text-2xl font-light">Step into a haven of comfort and care</h3>
+    </div>
+  </header>
+
+  <!-- Room Search Component -->
+  <div class="max-w-6xl mx-auto px-6 -mt-12 relative z-10">
+    <app-roomsearch
+      (searchResults)="handleSearchResult($event)"
+    ></app-roomsearch>
+  </div>
+
+  <!-- Room Result Component -->
+  <div class="max-w-6xl mx-auto px-6 mt-8">
+    <app-roomresult [roomSearchResults]="searchResults"></app-roomresult>
+  </div>
+
+  <div class="text-center my-8">
+    <a 
+      href="/rooms" 
+      class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-medium
+             hover:bg-blue-700 transition shadow"
+    >
+      All Rooms
+    </a>
+  </div>
+
+  <!-- Services Section -->
+  <div class="max-w-6xl mx-auto px-6 py-12">
+    <h2 class="text-3xl font-semibold text-center mb-8 text-gray-800">
+      Services at <span class="text-blue-600">Hotel Booking</span>
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="bg-white p-6 shadow-md rounded-xl text-center space-y-4">
+        <img src="./home/ac.png" alt="Air Conditioning" class="w-20 h-20 mx-auto object-contain" />
+        <h3 class="text-xl font-semibold text-gray-800">Air Conditioning</h3>
+        <p class="text-gray-600">
+          Stay cool and comfortable throughout your stay with our individually
+          controlled in-room air conditioning.
+        </p>
+      </div>
+
+      <div class="bg-white p-6 shadow-md rounded-xl text-center space-y-4">
+        <img src="./home/mini-bar.png" alt="Mini Bar" class="w-20 h-20 mx-auto object-contain" />
+        <h3 class="text-xl font-semibold text-gray-800">Mini Bar</h3>
+        <p class="text-gray-600">
+          Enjoy a convenient selection of beverages and snacks stocked in your
+          room's mini bar with no additional cost.
+        </p>
+      </div>
+
+      <div class="bg-white p-6 shadow-md rounded-xl text-center space-y-4">
+        <img src="./home/parking.png" alt="Parking" class="w-20 h-20 mx-auto object-contain" />
+        <h3 class="text-xl font-semibold text-gray-800">Parking</h3>
+        <p class="text-gray-600">
+          We offer on-site parking for your convenience. Please inquire about
+          valet parking options if available.
+        </p>
+      </div>
+
+      <div class="bg-white p-6 shadow-md rounded-xl text-center space-y-4">
+        <img src="./home/wifi.png" alt="WiFi" class="w-20 h-20 mx-auto object-contain" />
+        <h3 class="text-xl font-semibold text-gray-800">WiFi</h3>
+        <p class="text-gray-600">
+          Stay connected throughout your stay with complimentary high-speed
+          Wi-Fi access available in all guest rooms and public areas.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

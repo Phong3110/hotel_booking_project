@@ -1,0 +1,114 @@
+<div class="max-w-3xl mx-auto p-6">
+  <h2 class="text-3xl font-semibold mb-6 text-gray-800">Update Booking</h2>
+
+  <!-- Success Message -->
+  @if (message) {
+    <div class="mb-4 p-3 rounded-lg bg-green-100 text-green-700 border border-green-300">
+      {{ message }}
+    </div>
+  }
+
+  <!-- Error Message -->
+  @if (error) {
+    <div class="mb-4 p-3 rounded-lg bg-red-100 text-red-700 border border-red-300">
+      {{ error }}
+    </div>
+  }
+
+  <!-- Display booking details if fetched -->
+  @if (!isLoading) {
+    <!-- Booking Details -->
+    <div class="bg-white p-6 shadow-md rounded-xl mb-6 space-y-3">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">Booking Details</h3>
+      <p class="text-gray-700"><strong class="font-medium">Confirmation Code:</strong> {{ bookingDetails.bookingReference }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Check-in Date:</strong> {{ bookingDetails.checkInDate }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Check-out Date:</strong> {{ bookingDetails.checkOutDate }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Total Price:</strong> {{ bookingDetails.totalPrice }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Payment Status:</strong> {{ bookingDetails.paymentStatus }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Booking Status:</strong> {{ bookingDetails.bookingStatus }}</p>
+    </div>
+
+    <!-- Customer Details -->
+    <div class="bg-white p-6 shadow-md rounded-xl mb-6 space-y-3">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">Customer Details</h3>
+      <p class="text-gray-700"><strong class="font-medium">First Name:</strong> {{ bookingDetails.user.firstName }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Last Name:</strong> {{ bookingDetails.user.lastName }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Email:</strong> {{ bookingDetails.user.email }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Phone Number:</strong> {{ bookingDetails.user.phoneNumber }}</p>
+    </div>
+
+    <!-- Room Details -->
+    <div class="bg-white p-6 shadow-md rounded-xl mb-6 space-y-3">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">Room Details</h3>
+      <p class="text-gray-700"><strong class="font-medium">Type:</strong> {{ bookingDetails.room.type }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Price per Night:</strong> {{ bookingDetails.room.pricePerNight | currency }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Capacity:</strong> {{ bookingDetails.room.capacity }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Description:</strong> {{ bookingDetails.room.description }}</p>
+      <img 
+        [src]="'http://localhost:8080' + bookingDetails.room.imageUrl" 
+        alt="Room Image" 
+        class="w-full max-h-64 object-cover rounded-lg shadow mt-3"
+      />
+    </div>
+
+    <!-- Update Status Form -->
+    <div class="bg-white p-6 shadow-md rounded-xl space-y-5">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">Update Status</h3>
+
+      <!-- Booking Status -->
+      <div class="space-y-1">
+        <label for="bookingStatus" class="font-medium text-gray-700">Booking Status</label>
+        <select 
+          id="bookingStatus" 
+          name="bookingStatus" 
+          [(ngModel)]="formState.bookingStatus" 
+          (change)="handleChange($event)"
+          class="w-full p-2 border border-gray-300 rounded-lg
+                 focus:ring-2 focus:ring-blue-300 focus:outline-none"
+        >
+          <option value="">Select</option>
+          <option value="BOOKED">BOOKED</option>
+          <option value="CANCELLED">CANCELLED</option>
+          <option value="CHECKED_IN">CHECKED IN</option>
+          <option value="CHECKED_OUT">CHECKED OUT</option>
+        </select>
+      </div>
+
+      <!-- Payment Status -->
+      <div class="space-y-1">
+        <label for="paymentStatus" class="font-medium text-gray-700">Payment Status</label>
+        <select 
+          id="paymentStatus" 
+          name="paymentStatus" 
+          [(ngModel)]="formState.paymentStatus" 
+          (change)="handleChange($event)"
+          class="w-full p-2 border border-gray-300 rounded-lg
+                 focus:ring-2 focus:ring-blue-300 focus:outline-none"
+        >
+          <option value="">Select</option>
+          <option value="PENDING">PENDING</option>
+          <option value="COMPLETED">COMPLETED</option>
+          <option value="FAILED">FAILED</option>
+          <option value="REFUNDED">REFUNDED</option>
+          <option value="REVERSED">REVERSED</option>
+        </select>
+      </div>
+
+      <!-- Update Button -->
+      <button 
+        (click)="handleUpdate()"
+        class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium
+               hover:bg-blue-700 transition shadow"
+      >
+        Update Booking
+      </button>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="bg-white p-6 shadow-md rounded-xl text-center">
+      <p class="text-gray-700">Loading booking details...</p>
+    </div>
+  }
+</div>

@@ -1,0 +1,42 @@
+<div class="max-w-3xl mx-auto p-6">
+  <div class="bg-white p-8 shadow-md rounded-xl text-center space-y-6">
+    <!-- Icon dấu X -->
+    <div class="flex justify-center">
+      <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center">
+        <i class="text-red-600 text-4xl font-bold">✕</i>
+      </div>
+    </div>
+
+    <h1 class="text-3xl font-semibold text-gray-800">Payment Failed</h1>
+    
+    <p class="text-gray-700">
+      Unfortunately, your payment for booking reference 
+      <strong class="font-medium">{{ bookingReference }}</strong> could not be processed.
+    </p>
+
+    @if (errorReason) {
+      <div class="p-3 rounded-lg bg-red-100 text-red-700 border border-red-300">
+        Reason: <span class="font-medium">{{ errorReason }}</span>
+      </div>
+    }
+
+    <p class="text-gray-600">Please try again, or contact support: +184563798577.</p>
+    
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <a 
+        routerLink="/" 
+        class="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium
+               hover:bg-blue-700 transition shadow"
+      >
+        Go to Home
+      </a>
+      <!-- <a 
+        routerLink="/bookings" 
+        class="px-6 py-2.5 bg-gray-600 text-white rounded-lg font-medium
+               hover:bg-gray-700 transition shadow"
+      >
+        My Bookings
+      </a> -->
+    </div>
+  </div>
+</div>

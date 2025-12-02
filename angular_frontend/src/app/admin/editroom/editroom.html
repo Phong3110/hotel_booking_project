@@ -1,0 +1,139 @@
+<div class="max-w-3xl mx-auto p-6">
+  <h2 class="text-3xl font-semibold mb-6 text-gray-800">Edit Room</h2>
+
+  <!-- Error -->
+  @if (error) {
+    <div class="mb-4 p-3 rounded-lg bg-red-100 text-red-700 border border-red-300">
+      {{ error }}
+    </div>
+  }
+
+  <!-- Success -->
+  @if (success) {
+    <div class="mb-4 p-3 rounded-lg bg-green-100 text-green-700 border border-green-300">
+      {{ success }}
+    </div>
+  }
+
+  <!-- Form -->
+  <div class="bg-white p-6 shadow-md rounded-xl space-y-5">
+
+    <!-- Room Image -->
+    <div class="space-y-3">
+      @if (preview) {
+        <img
+          [src]="'http://localhost:8080' + preview"
+          alt="Room Preview"
+          class="w-full max-h-64 object-cover rounded-lg shadow"
+        />
+      }
+
+      @if (!preview && roomDetails.imageUrl) {
+        <img
+          [src]="'http://localhost:8080' + roomDetails.imageUrl"
+          alt="Room Image"
+          class="w-full max-h-64 object-cover rounded-lg shadow"
+        />
+      }
+
+      <input
+        type="file"
+        name="file"
+        (change)="handleFileChange($event)"
+        class="block w-full text-sm text-gray-700
+               file:mr-4 file:py-2 file:px-4
+               file:rounded-lg file:border-0
+               file:text-sm file:font-semibold
+               file:bg-blue-600 file:text-white
+               hover:file:bg-blue-700 cursor-pointer"
+      />
+    </div>
+
+    <!-- Room Type -->
+    <div class="space-y-1">
+      <label class="font-medium text-gray-700">Room Type</label>
+      <select
+        name="type"
+        [(ngModel)]="roomDetails.type"
+        (change)="handleChange($event)"
+        class="w-full p-2 border border-gray-300 rounded-lg
+               focus:ring-2 focus:ring-blue-300 focus:outline-none"
+      >
+        <option value="">Select a type</option>
+
+        @for (type of roomTypes; track $index) {
+          <option [value]="type">{{ type }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Room Price -->
+    <div class="space-y-1">
+      <label class="font-medium text-gray-700">Room Price</label>
+      <input
+        type="number"
+        name="pricePerNight"
+        [(ngModel)]="roomDetails.pricePerNight"
+        (input)="handleChange($event)"
+        class="w-full p-2 border border-gray-300 rounded-lg
+               focus:ring-2 focus:ring-blue-300 focus:outline-none"
+      />
+    </div>
+
+    <!-- Room Number -->
+    <div class="space-y-1">
+      <label class="font-medium text-gray-700">Room Number</label>
+      <input
+        type="text"
+        name="roomNumber"
+        [(ngModel)]="roomDetails.roomNumber"
+        (input)="handleChange($event)"
+        class="w-full p-2 border border-gray-300 rounded-lg
+               focus:ring-2 focus:ring-blue-300 focus:outline-none"
+      />
+    </div>
+
+    <!-- Room Capacity -->
+    <div class="space-y-1">
+      <label class="font-medium text-gray-700">Room Capacity</label>
+      <input
+        type="number"
+        name="capacity"
+        [(ngModel)]="roomDetails.capacity"
+        (input)="handleChange($event)"
+        class="w-full p-2 border border-gray-300 rounded-lg
+               focus:ring-2 focus:ring-blue-300 focus:outline-none"
+      />
+    </div>
+
+    <!-- Room Description -->
+    <div class="space-y-1">
+      <label class="font-medium text-gray-700">Room Description</label>
+      <textarea
+        name="description"
+        [(ngModel)]="roomDetails.description"
+        (input)="handleChange($event)"
+        class="w-full p-2 min-h-28 border border-gray-300 rounded-lg
+               focus:ring-2 focus:ring-blue-300 focus:outline-none"
+      ></textarea>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex gap-3">
+      <button
+        (click)="handleUpdate()"
+        class="flex-1 bg-blue-600 text-white py-2.5 rounded-lg font-medium
+               hover:bg-blue-700 transition shadow"
+      >
+        Update Room
+      </button>
+      <button
+        (click)="handleDelete()"
+        class="flex-1 bg-red-600 text-white py-2.5 rounded-lg font-medium
+               hover:bg-red-700 transition shadow"
+      >
+        Delete Room
+      </button>
+    </div>
+  </div>
+</div>

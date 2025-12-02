@@ -1,0 +1,66 @@
+<!-- Error Message -->
+@if (error) {
+  <div class="mb-4 p-3 rounded-lg bg-red-100 text-red-700 border border-red-300">
+    {{ error }}
+  </div>
+}
+
+<div class="bg-white p-6 shadow-md rounded-xl">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+    <!-- Check-in Date Picker -->
+    <div class="space-y-1">
+      <label class="font-medium text-gray-700">Check-in Date</label>
+      <input
+        type="date"
+        [(ngModel)]="startDate"
+        [min]="minDate"
+        placeholder="Select Check-In Date"
+        class="w-full p-2 border border-gray-300 rounded-lg
+               focus:ring-2 focus:ring-blue-300 focus:outline-none"
+      />
+    </div>
+
+    <!-- Check-out Date Picker -->
+    <div class="space-y-1">
+      <label class="font-medium text-gray-700">Check-Out Date</label>
+      <input
+        type="date"
+        [(ngModel)]="endDate"
+        [min]="startDate"
+        placeholder="Select Check-Out Date"
+        class="w-full p-2 border border-gray-300 rounded-lg
+               focus:ring-2 focus:ring-blue-300 focus:outline-none"
+      />
+    </div>
+
+    <!-- Room Type Selection -->
+    <div class="space-y-1">
+      <label class="font-medium text-gray-700">Room Type</label>
+      <select 
+        [(ngModel)]="roomType"
+        class="w-full p-2 border border-gray-300 rounded-lg
+               focus:ring-2 focus:ring-blue-300 focus:outline-none"
+      >
+        <option disabled value="">Select Room Type</option>
+
+        @for (type of roomTypes; track type) {
+          <option [value]="type">
+            {{ type }}
+          </option>
+        }
+      </select>
+    </div>
+
+  </div>
+
+  <!-- Search Button -->
+  <button 
+    (click)="handleSearch()"
+    class="w-full mt-4 bg-blue-600 text-white py-2.5 rounded-lg font-medium
+           hover:bg-blue-700 transition shadow"
+  >
+    Search Rooms
+  </button>
+
+</div>

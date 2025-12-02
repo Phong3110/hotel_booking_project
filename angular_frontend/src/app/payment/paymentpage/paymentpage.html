@@ -1,0 +1,87 @@
+<div class="max-w-3xl mx-auto p-6">
+  <!-- Loading state -->
+  @if (loadingStatus) {
+    <div class="bg-white p-6 shadow-md rounded-xl text-center">
+      <p class="text-gray-700">Validating payment link...</p>
+    </div>
+  }
+
+  <!-- Error state -->
+  @if (error) {
+    <div class="mb-4 p-3 rounded-lg bg-red-100 text-red-700 border border-red-300">
+      {{ error }}
+    </div>
+  }
+
+  <!-- Payment form - chỉ hiện khi validated -->
+  @if (paymentReady && !loadingStatus) {
+    <h3 class="text-3xl font-semibold mb-6 text-gray-800">Complete Your Payment</h3>
+
+    <div class="bg-white p-6 shadow-md rounded-xl mb-6 space-y-3">
+      <p class="text-gray-700"><strong class="font-medium">Booking Reference:</strong> {{ bookingReference }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Amount to Pay:</strong> ${{ amount.toFixed(2) }}</p>
+    </div>
+
+    <!-- 1. CHỌN PHƯƠNG THỨC THANH TOÁN -->
+    <div class="bg-white p-6 shadow-md rounded-xl mb-6 space-y-3">
+      <label 
+        class="flex items-center p-4 border-2 rounded-lg cursor-pointer transition"
+        [ngClass]="{
+          'border-blue-600 bg-blue-50': paymentMethod === 'stripe',
+          'border-gray-300 hover:border-gray-400': paymentMethod !== 'stripe'
+        }"
+      >
+        <input 
+          type="radio" 
+          name="paymentMethod" 
+          value="stripe" 
+          [(ngModel)]="paymentMethod" 
+          (change)="onMethodChange()"
+          class="w-4 h-4 text-blue-600">
+        <span class="ml-3 font-medium text-gray-700">Credit Card (Stripe)</span>
+      </label>
+
+      <label 
+        class="flex items-center p-4 border-2 rounded-lg cursor-pointer transition"
+        [ngClass]="{
+          'border-blue-600 bg-blue-50': paymentMethod === 'paypal',
+          'border-gray-300 hover:border-gray-400': paymentMethod !== 'paypal'
+        }"
+      >
+        <input 
+          type="radio" 
+          name="paymentMethod" 
+          value="paypal" 
+          [(ngModel)]="paymentMethod" 
+          (change)="onMethodChange()"
+          class="w-4 h-4 text-blue-600">
+        <span class="ml-3 font-medium text-gray-700">PayPal</span>
+      </label>
+    </div>
+
+    <!-- 2. FORM THANH TOÁN STRIPE -->
+    @if (paymentMethod === 'stripe') {
+      <div class="bg-white p-6 shadow-md rounded-xl">
+        <form (ngSubmit)="handleStripeSubmit($event)" class="space-y-5">
+          <div id="card-element" class="p-3 border border-gray-300 rounded-lg">
+            <!-- Stripe Card Element will be inserted here -->
+          </div>
+
+          <button 
+            [disabled]="processing || !stripe" 
+            type="submit"
+            class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium
+                   hover:bg-blue-700 transition shadow disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            {{ processing ? "Processing..." : "Pay Now" }}
+          </button>
+        </form>
+      </div>
+    }
+
+    <!-- 3. NÚT THANH TOÁN PAYPAL -->
+    <div [hidden]="paymentMethod !== 'paypal'" class="bg-white p-6 shadow-md rounded-xl">
+      <div id="paypal-button-container"></div>
+    </div>
+  }
+</div>

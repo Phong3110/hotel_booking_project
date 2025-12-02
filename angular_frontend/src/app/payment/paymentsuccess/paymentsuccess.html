@@ -1,0 +1,34 @@
+<div class="max-w-3xl mx-auto p-6">
+  <div class="bg-white p-8 shadow-md rounded-xl text-center space-y-6">
+    <!-- Icon dấu tích V -->
+    <div class="flex justify-center">
+      <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
+        <i class="text-green-600 text-4xl font-bold">✓</i>
+      </div>
+    </div>
+
+    <h1 class="text-3xl font-semibold text-gray-800">Payment Successful!</h1>
+    
+    <p class="text-gray-700">
+      Great news! Your payment for booking <strong class="font-medium">{{ bookingReference }}</strong> has been processed.
+    </p>
+    <p class="text-gray-600">A confirmation email has been sent to you.</p>
+
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <a 
+        routerLink="/" 
+        class="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium
+               hover:bg-blue-700 transition shadow"
+      >
+        Back to Home
+      </a>
+      <a 
+        routerLink="/profile" 
+        class="px-6 py-2.5 bg-gray-600 text-white rounded-lg font-medium
+               hover:bg-gray-700 transition shadow"
+      >
+        View My Bookings
+      </a>
+    </div>
+  </div>
+</div>

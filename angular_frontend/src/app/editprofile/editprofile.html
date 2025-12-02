@@ -1,0 +1,31 @@
+<div class="max-w-3xl mx-auto p-6">
+  <h2 class="text-3xl font-semibold mb-6 text-gray-800">Edit Profile</h2>
+
+  <!-- Error Message -->
+  @if (error) {
+    <div class="mb-4 p-3 rounded-lg bg-red-100 text-red-700 border border-red-300">
+      {{ error }}
+    </div>
+  }
+
+  <!-- User Profile Details -->
+  @if (user) {
+    <div class="bg-white p-6 shadow-md rounded-xl space-y-5">
+      <div class="space-y-3">
+        <p class="text-gray-700"><strong class="font-medium">First Name:</strong> {{ user.firstName }}</p>
+        <p class="text-gray-700"><strong class="font-medium">Last Name:</strong> {{ user.lastName }}</p>
+        <p class="text-gray-700"><strong class="font-medium">Email:</strong> {{ user.email }}</p>
+        <p class="text-gray-700"><strong class="font-medium">Phone Number:</strong> {{ user.phoneNumber }}</p>
+      </div>
+
+      <!-- Delete Account Button -->
+      <button 
+        (click)="handleDeleteProfile()"
+        class="w-full bg-red-600 text-white py-2.5 rounded-lg font-medium
+               hover:bg-red-700 transition shadow"
+      >
+        Delete My Account
+      </button>
+    </div>
+  }
+</div>

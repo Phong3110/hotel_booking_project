@@ -1,0 +1,71 @@
+<div class="max-w-3xl mx-auto p-6">
+
+  @if (user) {
+    <h2 class="text-3xl font-semibold mb-6 text-gray-800">Welcome, {{ user.firstName }}</h2>
+
+    <div class="flex gap-3 mb-6">
+      <button 
+        (click)="handleEditProfile()"
+        class="flex-1 bg-blue-600 text-white py-2.5 rounded-lg font-medium
+               hover:bg-blue-700 transition shadow"
+      >
+        Edit Profile
+      </button>
+      <button 
+        (click)="handleLogout()"
+        class="flex-1 bg-red-600 text-white py-2.5 rounded-lg font-medium
+               hover:bg-red-700 transition shadow"
+      >
+        Logout
+      </button>
+    </div>
+
+    <!-- Error Message -->
+    @if (error) {
+      <div class="mb-4 p-3 rounded-lg bg-red-100 text-red-700 border border-red-300">
+        {{ error }}
+      </div>
+    }
+
+    <!-- Profile Details -->
+    <div class="bg-white p-6 shadow-md rounded-xl mb-6 space-y-3">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">My Profile Details</h3>
+      <p class="text-gray-700"><strong class="font-medium">Email:</strong> {{ user.email }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Phone Number:</strong> {{ user.phoneNumber }}</p>
+    </div>
+
+    <!-- Bookings Section -->
+    <div class="space-y-4">
+      <h3 class="text-2xl font-semibold text-gray-800 mb-4">My Booking History</h3>
+
+      @if (bookings && bookings.length > 0) {
+        @for (booking of bookings; track booking.bookingReference) {
+          <div class="bg-white p-6 shadow-md rounded-xl space-y-3">
+            <p class="text-gray-700"><strong class="font-medium">Booking Code:</strong> {{ booking?.bookingReference }}</p>
+            <p class="text-gray-700"><strong class="font-medium">Check-in Date:</strong> {{ booking?.checkInDate | date }}</p>
+            <p class="text-gray-700"><strong class="font-medium">Check-out Date:</strong> {{ booking?.checkOutDate | date }}</p>
+            <p class="text-gray-700"><strong class="font-medium">Payment Status:</strong> {{ booking?.paymentStatus }}</p>
+            <p class="text-gray-700"><strong class="font-medium">Booking Status:</strong> {{ booking?.bookingStatus }}</p>
+            <p class="text-gray-700"><strong class="font-medium">Amount:</strong> {{ booking?.totalPrice | currency }}</p>
+            <p class="text-gray-700"><strong class="font-medium">Room Number:</strong> {{ booking?.room?.roomNumber }}</p>
+            <p class="text-gray-700"><strong class="font-medium">Room Type:</strong> {{ booking?.room?.type }}</p>
+            <img 
+              [src]="'http://localhost:8080' + booking?.room?.imageUrl" 
+              alt="Room"
+              class="w-full max-h-64 object-cover rounded-lg shadow mt-3"
+            />
+          </div>
+        }
+      } @else {
+        <div class="bg-white p-6 shadow-md rounded-xl text-center">
+          <p class="text-gray-600">No bookings found.</p>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="bg-white p-6 shadow-md rounded-xl text-center">
+      <p class="text-gray-700">Loading profile...</p>
+    </div>
+  }
+
+</div>
