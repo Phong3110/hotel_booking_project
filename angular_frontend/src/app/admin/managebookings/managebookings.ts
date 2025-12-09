@@ -16,7 +16,7 @@ export class Managebookings {
   filteredBookings: any[] = []; // Store filtered bookings based on search term
   searchTerm: string = ''; // Search term for filtering bookings
   currentPage: number = 1; // Current page for pagination
-  bookingsPerPage: number = 12; // Number of bookings per page
+  bookingsPerPage: number = 5; // Number of bookings per page
   error:any =null;
 
   constructor(private api: Api, private router: Router, private cdr: ChangeDetectorRef) {}

@@ -39,7 +39,7 @@
       <h3 class="text-2xl font-semibold text-gray-800 mb-4">My Booking History</h3>
 
       @if (bookings && bookings.length > 0) {
-        @for (booking of bookings; track booking.bookingReference) {
+        @for (booking of currentBookings; track booking.bookingReference) {
           <div class="bg-white p-6 shadow-md rounded-xl space-y-3">
             <p class="text-gray-700"><strong class="font-medium">Booking Code:</strong> {{ booking?.bookingReference }}</p>
             <p class="text-gray-700"><strong class="font-medium">Check-in Date:</strong> {{ booking?.checkInDate | date }}</p>
@@ -56,6 +56,14 @@
             />
           </div>
         }
+
+        <!-- Add pagination -->
+        <app-pagination
+          [roomPerPage]="bookingsPerPage"
+          [totalRooms]="bookings.length"
+          [currentPage]="currentBookingPage"
+          (paginate)="onBookingPageChange($event)"
+        ></app-pagination>
       } @else {
         <div class="bg-white p-6 shadow-md rounded-xl text-center">
           <p class="text-gray-600">No bookings found.</p>

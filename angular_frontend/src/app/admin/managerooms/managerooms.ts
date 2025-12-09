@@ -18,7 +18,7 @@ export class Managerooms {
   roomTypes: string[] = [];
   selectedRoomType: string = '';
   currentPage: number = 1;
-  roomsPerPage: number = 6;
+  roomsPerPage: number = 5;
   error:any = null;
 
   constructor(private api: Api, private router: Router, private cdr: ChangeDetectorRef) {}

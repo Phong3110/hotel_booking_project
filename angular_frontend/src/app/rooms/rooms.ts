@@ -18,16 +18,14 @@ export class Rooms {
   roomTypes: string[] = [];
   selectedRoomType: string = '';
   currentPage: number = 1;
-  roomsPerPage: number = 8;
+  roomsPerPage: number = 5;
   error: any = null;
 
   constructor(private api: Api, private cdr: ChangeDetectorRef) {}
   
   ngOnInit():void{
-
     this.fetchRooms();
     this.fetchRoomTypes();
-
   }
 
   showError(msg: string): void {

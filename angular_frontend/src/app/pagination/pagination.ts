@@ -8,7 +8,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   styleUrl: './pagination.css',
 })
 export class Pagination {
-  @Input() roomPerPage: number = 10; // Number of rooms per page
+  @Input() roomPerPage: number = 5; // Number of rooms per page
   @Input() totalRooms: number = 0; // Total number of rooms
   @Input() currentPage: number = 1; // Current page
   @Output() paginate: EventEmitter<number> = new EventEmitter<number>(); // Emit page number

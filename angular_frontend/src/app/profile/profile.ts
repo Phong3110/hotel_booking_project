@@ -2,14 +2,18 @@ import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Api } from '../service/api';
 import { Router } from '@angular/router';
+import { Pagination } from '../pagination/pagination';
 
 @Component({
   selector: 'app-profile',
-  imports: [CommonModule],
+  imports: [Pagination, CommonModule],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
 export class Profile {
+  // Thêm vào class Profile
+  bookingsPerPage: number = 5;
+  currentBookingPage: number = 1;
   user: any = null;
   bookings: any[] = [];
   error: any = null;
@@ -51,6 +55,16 @@ export class Profile {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  get currentBookings(): any[] {
+    const indexOfLast = this.currentBookingPage * this.bookingsPerPage;
+    const indexOfFirst = indexOfLast - this.bookingsPerPage;
+    return this.bookings.slice(indexOfFirst, indexOfLast);
+  }
+
+  onBookingPageChange(pageNumber: number) {
+    this.currentBookingPage = pageNumber;
   }
 
   // Handle errors
