@@ -51,6 +51,24 @@
       />
     </div>
 
+    <!-- Thêm sau Room Details section -->
+    @if (bookingDetails?.guests && bookingDetails.guests.length > 0) {
+      <div class="bg-white p-6 shadow-md rounded-xl mb-6 space-y-3">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">Guest Information ({{ bookingDetails.guests.length }})</h3>
+        @for (guest of bookingDetails.guests; track guest.id; let i = $index) {
+          <div class="border-b border-gray-200 pb-3 last:border-0 last:pb-0">
+            <p class="text-gray-700"><strong class="font-medium">Guest {{ i + 1 }}:</strong></p>
+            <p class="text-gray-600">{{ guest.firstName }} {{ guest.lastName }}</p>
+            <p class="text-gray-600">{{ guest.email }}</p>
+            <p class="text-gray-600">{{ guest.phoneNumber }}</p>
+            @if (guest.identityNumber) {
+              <p class="text-gray-600">ID: {{ guest.identityNumber }}</p>
+            }
+          </div>
+        }
+      </div>
+    }
+
     <!-- Update Status Form -->
     <div class="bg-white p-6 shadow-md rounded-xl space-y-5">
       <h3 class="text-xl font-semibold text-gray-800 mb-4">Update Status</h3>

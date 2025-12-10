@@ -72,10 +72,6 @@ export class Roomsearch implements OnInit {
     const startDateStr = formattedStartDate.toLocaleDateString('en-CA'); // 'yyyy-MM-dd'
     const endDateStr = formattedEndDate.toLocaleDateString('en-CA'); // 'yyyy-MM-dd'
 
-    console.log('formattedStartDate: ' + startDateStr);
-    console.log('formattedEndDate: ' + endDateStr);
-    console.log('roomType: ' + this.roomType);
-
     this.api.getAvailableRooms(startDateStr, endDateStr, this.roomType).subscribe({
       next: (resp: any) => {
         if (resp.rooms.length === 0) {

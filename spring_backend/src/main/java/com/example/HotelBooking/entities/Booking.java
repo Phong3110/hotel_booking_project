@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -49,4 +51,19 @@ public class Booking {
     @ManyToOne(cascade = CascadeType.REMOVE)  // meaning when a user is deleted all associated booking of the user will be deleted
     @JoinColumn(name = "user_id")
     private User user;
+
+    // Thêm vào class Booking
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Guest> guests = new ArrayList<>();
+
+    // Thêm helper method
+    public void addGuest(Guest guest) {
+        guests.add(guest);
+        guest.setBooking(this);
+    }
+
+    public void removeGuest(Guest guest) {
+        guests.remove(guest);
+        guest.setBooking(null);
+    }
 }

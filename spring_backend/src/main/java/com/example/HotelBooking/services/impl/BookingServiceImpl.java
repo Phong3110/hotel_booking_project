@@ -1,13 +1,7 @@
 package com.example.HotelBooking.services.impl;
 
-import com.example.HotelBooking.dtos.BookingDTO;
-import com.example.HotelBooking.dtos.BookingStatusResponse;
-import com.example.HotelBooking.dtos.NotificationDTO;
-import com.example.HotelBooking.dtos.Response;
-import com.example.HotelBooking.entities.Booking;
-import com.example.HotelBooking.entities.PaymentLink;
-import com.example.HotelBooking.entities.Room;
-import com.example.HotelBooking.entities.User;
+import com.example.HotelBooking.dtos.*;
+import com.example.HotelBooking.entities.*;
 import com.example.HotelBooking.enums.UserRole;
 import com.example.HotelBooking.enums.BookingStatus;
 import com.example.HotelBooking.enums.PaymentStatus;
@@ -142,6 +136,31 @@ public class BookingServiceImpl implements BookingService {
 
             bookingRepository.save(booking); //save to database
 
+            // Save guests
+            if (bookingDTO.getGuests() != null && !bookingDTO.getGuests().isEmpty()) {
+                // Validate số lượng guest không vượt quá capacity
+                if (bookingDTO.getGuests().size() > room.getCapacity()) {
+                    throw new InvalidBookingStateAndDateException(
+                            "Number of guests (" + bookingDTO.getGuests().size() +
+                                    ") exceeds room capacity (" + room.getCapacity() + ")"
+                    );
+                }
+
+                for (GuestDTO guestDTO : bookingDTO.getGuests()) {
+                    Guest guest = Guest.builder()
+                            .firstName(guestDTO.getFirstName())
+                            .lastName(guestDTO.getLastName())
+                            .email(guestDTO.getEmail())
+                            .phoneNumber(guestDTO.getPhoneNumber())
+                            .identityNumber(guestDTO.getIdentityNumber())
+                            .booking(booking)
+                            .build();
+                    booking.addGuest(guest);
+                }
+
+                bookingRepository.save(booking); // Save lại để persist guests
+            }
+
             // Reserve dates - nếu fail sẽ rollback toàn bộ transaction
             try {
                 roomAvailabilityService.bookRoomDates(room, booking.getCheckInDate(), booking.getCheckOutDate(), booking);
@@ -180,6 +199,22 @@ public class BookingServiceImpl implements BookingService {
                         )
                         .bookingReference(bookingReference)
                         .build();
+
+                // Sửa lại body email để bao gồm thông tin guests
+                String guestInfo = "";
+                if (booking.getGuests() != null && !booking.getGuests().isEmpty()) {
+                    guestInfo = "\nGuests Information:\n";
+                    for (Guest guest : booking.getGuests()) {
+                        guestInfo += "- " + guest.getFirstName() + " " + guest.getLastName() +
+                                " (" + guest.getEmail() + ")\n";
+                    }
+                }
+
+                notificationDTO.setBody(
+                        "Your booking with reference **" + bookingReference + "** has been successfully created.\n" +
+                                "Please proceed with your payment using the payment link below:\n" +
+                                paymentUrl + guestInfo
+                );
                 notificationService.sendEmail(notificationDTO);
             } catch (Exception e) {
                 log.error("Failed to send booking confirmation email for booking: {}", bookingReference, e);

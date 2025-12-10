@@ -28,6 +28,7 @@ public class Notification {
     @NotBlank(message = "recipient is required")
     private String recipient;
 
+    @Column(columnDefinition = "LONGTEXT")
     private String body;
 
     private String bookingReference;

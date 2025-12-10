@@ -4,6 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { Api } from '../service/api';
 import { ActivatedRoute, Router } from '@angular/router';
 
+// Thêm interface
+interface Guest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  identityNumber?: string;
+}
+
 @Component({
   selector: 'app-roomdetails',
   imports: [CommonModule, FormsModule],
@@ -12,6 +21,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class Roomdetails {
   constructor(private api: Api, private route: ActivatedRoute, private router: Router, private cdr: ChangeDetectorRef){}
+
+  // Thêm vào class Roomdetails
+  guests: Guest[] = [];
 
   room: any = null;
   roomId: any = '';
@@ -33,6 +45,85 @@ export class Roomdetails {
     if (this.roomId) {
       this.fetchRoomDetails(this.roomId)
     }
+    
+    // Lấy thông tin user hiện tại và set làm guest đầu tiên
+    this.fetchCurrentUser();
+  }
+
+  fetchCurrentUser(): void {
+    this.api.myProfile().subscribe({
+      next: (response: any) => {
+        const user = response.user;
+        // Set user làm guest đầu tiên
+        this.guests = [{
+          firstName: user.firstName || '',
+          lastName: user.lastName || '',
+          email: user.email || '',
+          phoneNumber: user.phoneNumber || '',
+          identityNumber: ''
+        }];
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        // Nếu không lấy được user, tạo guest trống
+        this.guests = [this.createEmptyGuest()];
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+
+  createEmptyGuest(): Guest {
+    return {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phoneNumber: '',
+      identityNumber: ''
+    };
+  }
+
+  addGuest(): void {
+    if (this.guests.length < (this.room?.capacity || 1)) {
+      this.guests.push(this.createEmptyGuest());
+    }
+  }
+
+  removeGuest(index: number): void {
+    if (this.guests.length > 1) {
+      this.guests.splice(index, 1);
+    }
+  }
+
+  validateGuests(): boolean {
+    if (this.guests.length === 0) {
+      this.showError('Please add at least one guest');
+      return false;
+    }
+    
+    for (let i = 0; i < this.guests.length; i++) {
+      const guest = this.guests[i];
+      if (!guest.firstName || !guest.lastName || !guest.email || !guest.phoneNumber || !guest.identityNumber) {
+        this.showError(`Please fill all required fields for Guest ${i + 1}`);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return false;
+      }
+      
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(guest.email)) {
+        this.showError(`Invalid email format for Guest ${i + 1}`);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return false;
+      }
+    }
+    
+    if (this.guests.length > (this.room?.capacity || 1)) {
+      this.showError(`Number of guests cannot exceed room capacity (${this.room?.capacity})`);
+      return false;
+    }
+    
+    return true;
   }
 
   fetchRoomDetails(roomId: string): void{
@@ -79,6 +170,11 @@ export class Roomdetails {
   handleConfirmation(): void{
     if(!this.checkInDate || !this.checkOutDate){
       this.showError("Please select both check-in and check-out dates");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (!this.validateGuests()) {
       return;
     }
 
@@ -89,18 +185,20 @@ export class Roomdetails {
   acceptBooking():void{
     if(!this.room) return
 
+    if (!this.validateGuests()) {
+      return;
+    }
+
     //Ensure the check in sarte and check out date are well formatted
     const formattedCheckInDate = this.checkInDate? new Date(this.checkInDate).toLocaleDateString('en-CA'):'';
     const formattedCheckOutDate = this.checkOutDate? new Date(this.checkOutDate).toLocaleDateString('en-CA'): '';
-
-    console.log("check in date is: "+ formattedCheckInDate);
-    console.log("check out date is: " + formattedCheckOutDate);
 
     //we are building our body object
     const booking = {
       checkInDate: formattedCheckInDate,
       checkOutDate: formattedCheckOutDate,
-      room: this.room
+      room: this.room,
+      guests: this.guests // Thêm guests vào booking
     };
 
     this.api.bookRoom(booking).subscribe({

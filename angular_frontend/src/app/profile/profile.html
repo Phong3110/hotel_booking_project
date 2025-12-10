@@ -54,6 +54,18 @@
               alt="Room"
               class="w-full max-h-64 object-cover rounded-lg shadow mt-3"
             />
+
+            <!-- Thêm vào trong booking card, sau Room Type -->
+            @if (booking?.guests && booking.guests.length > 0) {
+              <div class="pt-3 border-t border-gray-200">
+                <p class="text-gray-700 font-medium mb-2">Guests ({{ booking.guests.length }})</p>
+                @for (guest of booking.guests; track guest.id) {
+                  <p class="text-gray-600 text-sm">
+                    • {{ guest.firstName }} {{ guest.lastName }}
+                  </p>
+                }
+              </div>
+            }
           </div>
         }
 

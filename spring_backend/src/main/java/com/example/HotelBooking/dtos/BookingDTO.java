@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Data
@@ -41,4 +42,7 @@ public class BookingDTO {
     private RoomDTO room;
 
     private UserDTO user;
+
+    // Thêm vào BookingDTO class
+    private List<GuestDTO> guests;
 }
