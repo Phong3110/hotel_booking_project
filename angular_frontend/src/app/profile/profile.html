@@ -46,16 +46,28 @@
             <p class="text-gray-700"><strong class="font-medium">Check-out Date:</strong> {{ booking?.checkOutDate | date }}</p>
             <p class="text-gray-700"><strong class="font-medium">Payment Status:</strong> {{ booking?.paymentStatus }}</p>
             <p class="text-gray-700"><strong class="font-medium">Booking Status:</strong> {{ booking?.bookingStatus }}</p>
-            <p class="text-gray-700"><strong class="font-medium">Amount:</strong> {{ booking?.totalPrice | currency }}</p>
+            
+            <!-- Hiển thị giá tại thời điểm booking -->
+            <p class="text-gray-700"><strong class="font-medium">Price per Night (at booking):</strong> {{ booking?.pricePerNightAtBooking | currency }}</p>
+            <p class="text-gray-700"><strong class="font-medium">Total Amount:</strong> {{ booking?.totalPrice | currency }}</p>
+            
             <p class="text-gray-700"><strong class="font-medium">Room Number:</strong> {{ booking?.room?.roomNumber }}</p>
             <p class="text-gray-700"><strong class="font-medium">Room Type:</strong> {{ booking?.room?.type }}</p>
+            
+            <!-- Nếu giá phòng hiện tại khác giá lúc booking, hiển thị note -->
+            @if (booking?.room?.pricePerNight !== booking?.pricePerNightAtBooking) {
+              <p class="text-sm text-gray-500 italic">
+                Current room price: {{ booking?.room?.pricePerNight | currency }}/night
+              </p>
+            }
+            
             <img 
               [src]="'http://localhost:8080' + booking?.room?.imageUrl" 
               alt="Room"
               class="w-full max-h-64 object-cover rounded-lg shadow mt-3"
             />
 
-            <!-- Thêm vào trong booking card, sau Room Type -->
+            <!-- Guest info -->
             @if (booking?.guests && booking.guests.length > 0) {
               <div class="pt-3 border-t border-gray-200">
                 <p class="text-gray-700 font-medium mb-2">Guests ({{ booking.guests.length }})</p>
@@ -69,7 +81,7 @@
           </div>
         }
 
-        <!-- Add pagination -->
+        <!-- Pagination -->
         <app-pagination
           [roomPerPage]="bookingsPerPage"
           [totalRooms]="bookings.length"

@@ -24,7 +24,7 @@ export class Updatebooking {
   error = ""
 
   constructor(
-    private api: Api, // Your API service to interact with the backend
+    private api: Api,
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef
@@ -89,6 +89,7 @@ export class Updatebooking {
       error: (error) => {
         this.showError(error.error?.message || error.message);
         this.cdr.detectChanges();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
   }
@@ -96,5 +97,38 @@ export class Updatebooking {
   // Check if the booking details are still loading
   get isLoading(): boolean {
     return !this.bookingDetails;
+  }
+
+  // Helper method để style payment status
+  getPaymentStatusClass(status: string): string {
+    switch (status) {
+      case 'PAID':
+        return 'bg-green-100 text-green-700';
+      case 'PENDING':
+        return 'bg-yellow-100 text-yellow-700';
+      case 'CANCELLED':
+      case 'FAILED':
+        return 'bg-red-100 text-red-700';
+      case 'REFUNDED':
+        return 'bg-blue-100 text-blue-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
+    }
+  }
+
+  // Helper method để style booking status
+  getBookingStatusClass(status: string): string {
+    switch (status) {
+      case 'BOOKED':
+        return 'bg-blue-100 text-blue-700';
+      case 'CHECKED_IN':
+        return 'bg-green-100 text-green-700';
+      case 'CHECKED_OUT':
+        return 'bg-gray-100 text-gray-700';
+      case 'CANCELLED':
+        return 'bg-red-100 text-red-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
+    }
   }
 }

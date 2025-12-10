@@ -38,15 +38,28 @@
         <p class="text-gray-700">
           <strong class="font-medium">Check Out Date:</strong> {{ booking.checkOutDate }}
         </p>
+        
+        <!-- Hiển thị giá tại thời điểm booking -->
         <p class="text-gray-700">
-          <strong class="font-medium">Total Price:</strong> {{ booking.totalPrice }}
+          <strong class="font-medium">Price per Night (at booking):</strong> ${{ booking.pricePerNightAtBooking }}
         </p>
         <p class="text-gray-700">
-          <strong class="font-medium">Payment Status:</strong> {{ booking.paymentStatus }}
+          <strong class="font-medium">Total Price:</strong> ${{ booking.totalPrice }}
+        </p>
+        
+        <p class="text-gray-700">
+          <strong class="font-medium">Payment Status:</strong> 
+          <span [class]="'px-2 py-1 rounded text-sm ' + getPaymentStatusClass(booking.paymentStatus)">
+            {{ booking.paymentStatus }}
+          </span>
         </p>
         <p class="text-gray-700">
-          <strong class="font-medium">Booking Status:</strong> {{ booking.bookingStatus }}
+          <strong class="font-medium">Booking Status:</strong> 
+          <span [class]="'px-2 py-1 rounded text-sm ' + getBookingStatusClass(booking.bookingStatus)">
+            {{ booking.bookingStatus }}
+          </span>
         </p>
+        
         <button
           (click)="manageBooking(booking.bookingReference)"
           class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium

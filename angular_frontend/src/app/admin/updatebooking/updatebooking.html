@@ -23,9 +23,33 @@
       <p class="text-gray-700"><strong class="font-medium">Confirmation Code:</strong> {{ bookingDetails.bookingReference }}</p>
       <p class="text-gray-700"><strong class="font-medium">Check-in Date:</strong> {{ bookingDetails.checkInDate }}</p>
       <p class="text-gray-700"><strong class="font-medium">Check-out Date:</strong> {{ bookingDetails.checkOutDate }}</p>
-      <p class="text-gray-700"><strong class="font-medium">Total Price:</strong> {{ bookingDetails.totalPrice }}</p>
-      <p class="text-gray-700"><strong class="font-medium">Payment Status:</strong> {{ bookingDetails.paymentStatus }}</p>
-      <p class="text-gray-700"><strong class="font-medium">Booking Status:</strong> {{ bookingDetails.bookingStatus }}</p>
+      
+      <!-- Hiển thị giá tại thời điểm booking -->
+      <p class="text-gray-700"><strong class="font-medium">Price per Night (at booking):</strong> {{ bookingDetails.pricePerNightAtBooking | currency }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Total Price:</strong> {{ bookingDetails.totalPrice | currency }}</p>
+      
+      <!-- Nếu giá phòng hiện tại khác giá lúc booking -->
+      @if (bookingDetails.room?.pricePerNight !== bookingDetails.pricePerNightAtBooking) {
+        <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p class="text-sm text-yellow-800">
+            <strong>Note:</strong> Current room price is {{ bookingDetails.room?.pricePerNight | currency }}/night
+            (Price changed after booking was made)
+          </p>
+        </div>
+      }
+      
+      <p class="text-gray-700">
+        <strong class="font-medium">Payment Status:</strong> 
+        <span [class]="'px-2 py-1 rounded text-sm ml-2 ' + getPaymentStatusClass(bookingDetails.paymentStatus)">
+          {{ bookingDetails.paymentStatus }}
+        </span>
+      </p>
+      <p class="text-gray-700">
+        <strong class="font-medium">Booking Status:</strong> 
+        <span [class]="'px-2 py-1 rounded text-sm ml-2 ' + getBookingStatusClass(bookingDetails.bookingStatus)">
+          {{ bookingDetails.bookingStatus }}
+        </span>
+      </p>
     </div>
 
     <!-- Customer Details -->
@@ -41,7 +65,8 @@
     <div class="bg-white p-6 shadow-md rounded-xl mb-6 space-y-3">
       <h3 class="text-xl font-semibold text-gray-800 mb-4">Room Details</h3>
       <p class="text-gray-700"><strong class="font-medium">Type:</strong> {{ bookingDetails.room.type }}</p>
-      <p class="text-gray-700"><strong class="font-medium">Price per Night:</strong> {{ bookingDetails.room.pricePerNight | currency }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Room Number:</strong> {{ bookingDetails.room.roomNumber }}</p>
+      <p class="text-gray-700"><strong class="font-medium">Current Price per Night:</strong> {{ bookingDetails.room.pricePerNight | currency }}</p>
       <p class="text-gray-700"><strong class="font-medium">Capacity:</strong> {{ bookingDetails.room.capacity }}</p>
       <p class="text-gray-700"><strong class="font-medium">Description:</strong> {{ bookingDetails.room.description }}</p>
       <img 
@@ -51,7 +76,7 @@
       />
     </div>
 
-    <!-- Thêm sau Room Details section -->
+    <!-- Guest Information -->
     @if (bookingDetails?.guests && bookingDetails.guests.length > 0) {
       <div class="bg-white p-6 shadow-md rounded-xl mb-6 space-y-3">
         <h3 class="text-xl font-semibold text-gray-800 mb-4">Guest Information ({{ bookingDetails.guests.length }})</h3>
@@ -72,6 +97,18 @@
     <!-- Update Status Form -->
     <div class="bg-white p-6 shadow-md rounded-xl space-y-5">
       <h3 class="text-xl font-semibold text-gray-800 mb-4">Update Status</h3>
+
+      <!-- Warning về business rules -->
+      <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+        <p class="font-medium mb-2">⚠️ Status Update Rules:</p>
+        <ul class="list-disc list-inside space-y-1 text-xs">
+          <li>Cannot update cancelled bookings</li>
+          <li>Cannot cancel after check-in</li>
+          <li>Can only check-in on/after check-in date with PAID status</li>
+          <li>Can only check-out after checked-in</li>
+          <li>Payment status PAID can only change to REFUNDED</li>
+        </ul>
+      </div>
 
       <!-- Booking Status -->
       <div class="space-y-1">

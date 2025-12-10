@@ -17,7 +17,7 @@ export class Managebookings {
   searchTerm: string = ''; // Search term for filtering bookings
   currentPage: number = 1; // Current page for pagination
   bookingsPerPage: number = 5; // Number of bookings per page
-  error:any =null;
+  error: any = null;
 
   constructor(private api: Api, private router: Router, private cdr: ChangeDetectorRef) {}
 
@@ -34,7 +34,7 @@ export class Managebookings {
         this.cdr.detectChanges();
       },
       error: (error) => {
-        this.error('Error fetching bookings:', error.message);
+        this.showError(error?.error?.message || 'Error fetching bookings: ' + error.message);
         this.cdr.detectChanges();
       }
     });
@@ -68,5 +68,45 @@ export class Managebookings {
   // Navigate to the booking management page
   manageBooking(bookingReference: string): void {
     this.router.navigate([`/admin/edit-booking/${bookingReference}`]);
+  }
+
+  // Helper method để style payment status
+  getPaymentStatusClass(status: string): string {
+    switch (status) {
+      case 'PAID':
+        return 'bg-green-100 text-green-700';
+      case 'PENDING':
+        return 'bg-yellow-100 text-yellow-700';
+      case 'CANCELLED':
+      case 'FAILED':
+        return 'bg-red-100 text-red-700';
+      case 'REFUNDED':
+        return 'bg-blue-100 text-blue-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
+    }
+  }
+
+  // Helper method để style booking status
+  getBookingStatusClass(status: string): string {
+    switch (status) {
+      case 'BOOKED':
+        return 'bg-blue-100 text-blue-700';
+      case 'CHECKED_IN':
+        return 'bg-green-100 text-green-700';
+      case 'CHECKED_OUT':
+        return 'bg-gray-100 text-gray-700';
+      case 'CANCELLED':
+        return 'bg-red-100 text-red-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
+    }
+  }
+
+  showError(msg: string): void {
+    this.error = msg;
+    setTimeout(() => {
+      this.error = null;
+    }, 5000);
   }
 }

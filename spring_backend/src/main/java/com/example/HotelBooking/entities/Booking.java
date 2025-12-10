@@ -42,6 +42,10 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
 
+    // THÊM: Lưu giá phòng tại thời điểm booking
+    @Column(nullable = false)
+    private BigDecimal pricePerNightAtBooking;
+
     private BigDecimal totalPrice;
 
     @ManyToOne

@@ -37,6 +37,9 @@ public class BookingDTO {
 
     private PaymentStatus paymentStatus;
 
+    // THÊM: Giá phòng tại thời điểm booking
+    private BigDecimal pricePerNightAtBooking;
+
     private BigDecimal totalPrice;
 
     private RoomDTO room;

@@ -44,7 +44,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Response getAllBookings() {
-        List<Booking> bookingList =bookingRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
+        List<Booking> bookingList = bookingRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
         List<BookingDTO> bookingDTOList = modelMapper.map(bookingList, new TypeToken<List<BookingDTO>>() {}.getType());
 
         for(BookingDTO bookingDTO: bookingDTOList){
@@ -65,18 +65,18 @@ public class BookingServiceImpl implements BookingService {
         try {
             User currentUser = userService.getCurrentLoggedInUser();
 
-            // 1. Validate check-out date không quá xa (max 1 năm)
+            // Validate check-out date không quá xa (max 1 năm)
             if (bookingDTO.getCheckOutDate().isAfter(LocalDate.now().plusYears(1))) {
                 throw new InvalidBookingStateAndDateException("Cannot book more than 1 year in advance");
             }
 
-            // 2. Validate booking duration (min 1 night, max 30 nights)
+            // Validate booking duration (min 1 night, max 30 nights)
             long nights = ChronoUnit.DAYS.between(bookingDTO.getCheckInDate(), bookingDTO.getCheckOutDate());
             if (nights > 30) {
                 throw new InvalidBookingStateAndDateException("Maximum stay is 30 nights");
             }
 
-            // 3. Prevent spam - check user's pending bookings
+            // Prevent spam - check user's pending bookings
             long pendingCount = bookingRepository.countByUserAndPaymentStatus(
                     currentUser, PaymentStatus.PENDING
             );
@@ -87,29 +87,32 @@ public class BookingServiceImpl implements BookingService {
             Room room = roomRepository.findById(bookingDTO.getRoom().getId())
                     .orElseThrow(()-> new NotFoundException("Room Not Found"));
 
-            //validation: Ensure the check-in date is not before today
+            // Validation: Ensure the check-in date is not before today
             if (bookingDTO.getCheckInDate().isBefore(LocalDate.now())){
                 throw new InvalidBookingStateAndDateException("Check in date cannot be before today");
             }
 
-            //validation: Ensure the check-out date is not before check in date
+            // Validation: Ensure the check-out date is not before check in date
             if (bookingDTO.getCheckOutDate().isBefore(bookingDTO.getCheckInDate())){
                 throw new InvalidBookingStateAndDateException("Check out date cannot be before check in date");
             }
 
-            //validation: Ensure the check-in date is not same as check out date
+            // Validation: Ensure the check-in date is not same as check out date
             if (bookingDTO.getCheckInDate().isEqual(bookingDTO.getCheckOutDate())){
                 throw new InvalidBookingStateAndDateException("Check in date cannot be equal to check out date");
             }
 
-            //validate room availability
+            // Validate room availability
             boolean isAvailable = roomAvailabilityService.isAvailable(room.getId(), bookingDTO.getCheckInDate(), bookingDTO.getCheckOutDate());
             if (!isAvailable) {
                 throw new InvalidBookingStateAndDateException("Room is not available for the selected date ranges");
             }
 
-            //calculate the total price needed to pay for the stay
-            BigDecimal totalPrice = calculateTotalPrice(room, bookingDTO);
+            // QUAN TRỌNG: Lưu giá phòng tại thời điểm booking
+            BigDecimal pricePerNightAtBooking = room.getPricePerNight();
+
+            // Calculate the total price với giá hiện tại
+            BigDecimal totalPrice = calculateTotalPrice(pricePerNightAtBooking, bookingDTO);
 
             // Validate total price
             if (totalPrice.compareTo(BigDecimal.ZERO) <= 0) {
@@ -121,12 +124,13 @@ public class BookingServiceImpl implements BookingService {
                 bookingReference = bookingCodeGenerator.generateBookingReference();
             } while (bookingRepository.existsByBookingReference(bookingReference));
 
-            //create and save the booking
+            // Create and save the booking
             Booking booking = new Booking();
 
             booking.setBookingReference(bookingReference);
             booking.setCheckInDate(bookingDTO.getCheckInDate());
             booking.setCheckOutDate(bookingDTO.getCheckOutDate());
+            booking.setPricePerNightAtBooking(pricePerNightAtBooking); // LƯU GIÁ
             booking.setTotalPrice(totalPrice);
             booking.setBookingStatus(BookingStatus.BOOKED);
             booking.setPaymentStatus(PaymentStatus.PENDING);
@@ -134,11 +138,10 @@ public class BookingServiceImpl implements BookingService {
             booking.setRoom(room);
             booking.setUser(currentUser);
 
-            bookingRepository.save(booking); //save to database
+            bookingRepository.save(booking);
 
             // Save guests
             if (bookingDTO.getGuests() != null && !bookingDTO.getGuests().isEmpty()) {
-                // Validate số lượng guest không vượt quá capacity
                 if (bookingDTO.getGuests().size() > room.getCapacity()) {
                     throw new InvalidBookingStateAndDateException(
                             "Number of guests (" + bookingDTO.getGuests().size() +
@@ -158,20 +161,18 @@ public class BookingServiceImpl implements BookingService {
                     booking.addGuest(guest);
                 }
 
-                bookingRepository.save(booking); // Save lại để persist guests
+                bookingRepository.save(booking);
             }
 
-            // Reserve dates - nếu fail sẽ rollback toàn bộ transaction
+            // Reserve dates
             try {
                 roomAvailabilityService.bookRoomDates(room, booking.getCheckInDate(), booking.getCheckOutDate(), booking);
             } catch (InvalidBookingStateAndDateException e) {
-                // Re-throw với message rõ ràng hơn
                 throw new InvalidBookingStateAndDateException("Failed to reserve room: " + e.getMessage());
             }
 
             // Tạo payment link
             String token;
-
             do {
                 token = UUID.randomUUID().toString().replace("-", "")
                         + RandomStringUtils.secure().nextAlphanumeric(32);
@@ -187,20 +188,8 @@ public class BookingServiceImpl implements BookingService {
 
             String paymentUrl = "http://localhost:4200/payment?token=" + token;
 
-            // Send notification (async recommended - không rollback nếu email fail)
+            // Send notification
             try {
-                NotificationDTO notificationDTO = NotificationDTO.builder()
-                        .recipient(currentUser.getEmail())
-                        .subject("Booking Confirmation")
-                        .body(
-                                "Your booking with reference **" + bookingReference + "** has been successfully created.\n" +
-                                "Please proceed with your payment using the payment link below:\n" +
-                                paymentUrl
-                        )
-                        .bookingReference(bookingReference)
-                        .build();
-
-                // Sửa lại body email để bao gồm thông tin guests
                 String guestInfo = "";
                 if (booking.getGuests() != null && !booking.getGuests().isEmpty()) {
                     guestInfo = "\nGuests Information:\n";
@@ -210,15 +199,22 @@ public class BookingServiceImpl implements BookingService {
                     }
                 }
 
-                notificationDTO.setBody(
-                        "Your booking with reference **" + bookingReference + "** has been successfully created.\n" +
-                                "Please proceed with your payment using the payment link below:\n" +
-                                paymentUrl + guestInfo
-                );
+                NotificationDTO notificationDTO = NotificationDTO.builder()
+                        .recipient(currentUser.getEmail())
+                        .subject("Booking Confirmation")
+                        .body(
+                                "Your booking with reference **" + bookingReference + "** has been successfully created.\n" +
+                                        "Price per night: $" + pricePerNightAtBooking + "\n" +
+                                        "Total price: $" + totalPrice + "\n" +
+                                        "Please proceed with your payment using the payment link below:\n" +
+                                        paymentUrl + guestInfo
+                        )
+                        .bookingReference(bookingReference)
+                        .build();
+
                 notificationService.sendEmail(notificationDTO);
             } catch (Exception e) {
                 log.error("Failed to send booking confirmation email for booking: {}", bookingReference, e);
-                // Không throw - booking vẫn thành công dù email fail
             }
 
             BookingDTO responseDTO = modelMapper.map(booking, BookingDTO.class);
@@ -229,11 +225,9 @@ public class BookingServiceImpl implements BookingService {
                     .build();
 
         } catch (InvalidBookingStateAndDateException | NotFoundException e) {
-            // Known business exceptions
             log.warn("Booking creation failed: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
-            // Unexpected errors
             log.error("Unexpected error during booking creation", e);
             throw new RuntimeException("Failed to create booking. Please try again later.");
         }
@@ -255,7 +249,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         BookingDTO bookingDTO = modelMapper.map(booking, BookingDTO.class);
-        return  Response.builder()
+        return Response.builder()
                 .status(200)
                 .message("success")
                 .booking(bookingDTO)
@@ -263,18 +257,91 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public Response updateBooking(BookingDTO bookingDTO) {
         if (bookingDTO.getId() == null) throw new NotFoundException("Booking id is required");
 
         Booking existingBooking = bookingRepository.findById(bookingDTO.getId())
                 .orElseThrow(()-> new NotFoundException("Booking Not Found"));
 
+        // Validation rules cho update booking status
         if (bookingDTO.getBookingStatus() != null) {
-            existingBooking.setBookingStatus(bookingDTO.getBookingStatus());
+            BookingStatus currentStatus = existingBooking.getBookingStatus();
+            BookingStatus newStatus = bookingDTO.getBookingStatus();
+
+            // 1. Không thể update nếu đã CANCELLED
+            if (currentStatus == BookingStatus.CANCELLED) {
+                throw new InvalidBookingStateAndDateException("Cannot update a cancelled booking");
+            }
+
+            // 2. Không thể CANCEL nếu đã CHECKED_IN
+            if (newStatus == BookingStatus.CANCELLED && currentStatus == BookingStatus.CHECKED_IN) {
+                throw new InvalidBookingStateAndDateException("Cannot cancel a booking that is checked in");
+            }
+
+            // 3. Không thể CHECKED_IN nếu chưa đến ngày check-in
+            if (newStatus == BookingStatus.CHECKED_IN) {
+                if (LocalDate.now().isBefore(existingBooking.getCheckInDate())) {
+                    throw new InvalidBookingStateAndDateException("Cannot check in before check-in date");
+                }
+                // Phải đã PAID
+                if (existingBooking.getPaymentStatus() != PaymentStatus.PAID) {
+                    throw new InvalidBookingStateAndDateException("Cannot check in without payment");
+                }
+            }
+
+            // 4. Không thể CHECKED_OUT nếu chưa CHECKED_IN
+            if (newStatus == BookingStatus.CHECKED_OUT && currentStatus != BookingStatus.CHECKED_IN) {
+                throw new InvalidBookingStateAndDateException("Must be checked in before checking out");
+            }
+
+            // 5. Không thể CANCEL sau check-in date
+            if (newStatus == BookingStatus.CANCELLED &&
+                    !LocalDate.now().isBefore(existingBooking.getCheckInDate())) {
+                throw new InvalidBookingStateAndDateException("Cannot cancel after check-in date has passed");
+            }
+
+            // Nếu cancel, release room dates
+            if (newStatus == BookingStatus.CANCELLED) {
+                roomAvailabilityService.releaseRoomDates(
+                        existingBooking.getRoom(),
+                        existingBooking.getCheckInDate(),
+                        existingBooking.getCheckOutDate()
+                );
+            }
+
+            existingBooking.setBookingStatus(newStatus);
         }
 
+        // Validation rules cho payment status
         if (bookingDTO.getPaymentStatus() != null) {
-            existingBooking.setPaymentStatus(bookingDTO.getPaymentStatus());
+            PaymentStatus currentPayment = existingBooking.getPaymentStatus();
+            PaymentStatus newPayment = bookingDTO.getPaymentStatus();
+
+            // 1. Không thể thay đổi nếu đã PAID (chỉ có thể REFUNDED)
+            if (currentPayment == PaymentStatus.PAID && newPayment != PaymentStatus.REFUNDED) {
+                throw new InvalidBookingStateAndDateException("Cannot change payment status from PAID except to REFUNDED");
+            }
+
+            // 2. Không thể REFUNDED nếu chưa PAID
+            if (newPayment == PaymentStatus.REFUNDED && currentPayment != PaymentStatus.PAID) {
+                throw new InvalidBookingStateAndDateException("Cannot refund a payment that hasn't been made");
+            }
+
+            // 3. Nếu set CANCELLED hoặc REFUNDED, booking status cũng phải CANCELLED
+            if ((newPayment == PaymentStatus.CANCELLED || newPayment == PaymentStatus.REFUNDED) &&
+                    existingBooking.getBookingStatus() != BookingStatus.CANCELLED) {
+                existingBooking.setBookingStatus(BookingStatus.CANCELLED);
+
+                // Release room dates
+                roomAvailabilityService.releaseRoomDates(
+                        existingBooking.getRoom(),
+                        existingBooking.getCheckInDate(),
+                        existingBooking.getCheckOutDate()
+                );
+            }
+
+            existingBooking.setPaymentStatus(newPayment);
         }
 
         bookingRepository.save(existingBooking);
@@ -285,9 +352,8 @@ public class BookingServiceImpl implements BookingService {
                 .build();
     }
 
-
-    private BigDecimal calculateTotalPrice(Room room, BookingDTO bookingDTO){
-        BigDecimal pricePerNight = room.getPricePerNight();
+    // Helper method - tính tổng giá dựa trên giá per night được truyền vào
+    private BigDecimal calculateTotalPrice(BigDecimal pricePerNight, BookingDTO bookingDTO){
         long days = ChronoUnit.DAYS.between(bookingDTO.getCheckInDate(), bookingDTO.getCheckOutDate());
         return pricePerNight.multiply(BigDecimal.valueOf(days));
     }
@@ -360,33 +426,31 @@ public class BookingServiceImpl implements BookingService {
             throw new InvalidBookingStateAndDateException("Cannot cancel booking after check-in date has passed");
         }
 
-        // 4. Cannot cancel if currently staying (between check-in and check-out)
+        // 4. Cannot cancel if currently staying
         LocalDate today = LocalDate.now();
         if (!today.isBefore(booking.getCheckInDate()) && today.isBefore(booking.getCheckOutDate())) {
             throw new InvalidBookingStateAndDateException("Cannot cancel booking during your stay");
         }
 
-        // 5. Optional: Cancellation policy - e.g., must cancel 24h before check-in
+        // 5. Cancellation policy - must cancel 24h before check-in
         if (booking.getCheckInDate().minusDays(1).isBefore(LocalDate.now())) {
             throw new InvalidBookingStateAndDateException("Cancellation must be made at least 24 hours before check-in date");
         }
 
-        // release room dates
+        // Release room dates
         roomAvailabilityService.releaseRoomDates(booking.getRoom(), booking.getCheckInDate(), booking.getCheckOutDate());
 
-        // update statuses
+        // Update statuses
         booking.setBookingStatus(BookingStatus.CANCELLED);
         if (booking.getPaymentStatus() == PaymentStatus.PAID) {
-            // create refund flow or mark refunded if you do automatic refund later
             booking.setPaymentStatus(PaymentStatus.REFUNDED);
-            // optionally create a PaymentEntity with refund info (transactionId null or refundId)
         } else {
             booking.setPaymentStatus(PaymentStatus.CANCELLED);
         }
 
         bookingRepository.save(booking);
 
-        // Send notification (async recommended - không rollback nếu email fail)
+        // Send notification
         try {
             NotificationDTO notificationDTO = NotificationDTO.builder()
                     .recipient(currentUser.getEmail())
@@ -397,7 +461,6 @@ public class BookingServiceImpl implements BookingService {
             notificationService.sendEmail(notificationDTO);
         } catch (Exception e) {
             log.error("Failed to send booking confirmation email for booking: {}", bookingReference, e);
-            // Không throw - booking vẫn thành công dù email fail
         }
 
         BookingDTO bookingDTO = modelMapper.map(booking, BookingDTO.class);
