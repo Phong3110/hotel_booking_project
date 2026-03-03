@@ -136,13 +136,9 @@ Contributions are welcome! Please follow these steps:
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## License
-
-This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.
-
 ## Author
 
-Phan Thiết Trung
+Nguyen Tan Phong
 
 ## Support
 
@@ -150,4 +146,5 @@ For issues and questions, please [open an issue](../../issues) on the repository
 
 ---
 
-**Last Updated**: [Date]
+**Last Updated**: 3/4/2026
+
